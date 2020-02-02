@@ -19,18 +19,12 @@ Private Type LARGE_INTEGER
     highpart                        As Long
 End Type
 
-Public Type LIST_ENTRY64
-    Flink                           As LARGE_INTEGER
-    Blink                           As LARGE_INTEGER
-End Type
-
 Private Type UNICODE_STRING64
     Length                          As Integer
     MaxLength                       As Integer
     lPad                            As Long
     lpBuffer                        As LongPtr
 End Type
-
 
 Private Type RTL_USER_PROCESS_PARAMETERS
     Reserved1(15) As Byte
@@ -41,9 +35,7 @@ Private Type RTL_USER_PROCESS_PARAMETERS
     ImagePathName As UNICODE_STRING64
     CommandLine As UNICODE_STRING64
     Environment As LongPtr
-
 End Type
-
 
 Private Type PROCESS_BASIC_INFORMATION
     ExitStatus                      As Long
@@ -68,7 +60,6 @@ Private Type PEB
     SessionId As Long
 End Type
 
-
 Private Declare PtrSafe Function NtQueryInformationProcess Lib "ntdll" ( _
                          ByVal hProcess As LongPtr, _
                          ByVal ProcessInformationClass As Long, _
@@ -90,14 +81,12 @@ Private Declare PtrSafe Function NtWriteVirtualMemory Lib "ntdll" ( _
                          ByVal nSS As Long, _
                          ByRef NOBW As LARGE_INTEGER) As Boolean
 
-
 Private Type PROCESS_INFORMATION
     hProcess As LongPtr
     hThread As LongPtr
     dwProcessId As Long
     dwThreadId As Long
 End Type
-
 
 Private Type STARTUP_INFO
     cb As Long
@@ -120,14 +109,10 @@ Private Type STARTUP_INFO
     hStdError As LongPtr
 End Type
  
-
- 
 Private Type STARTUPINFOEX
     STARTUPINFO As STARTUP_INFO
     lpAttributelist As LongPtr
 End Type
-
-
 
 ' From https://foren.activevb.de/archiv/vb-net/thread-76040/beitrag-76164/ReadProcessMemory-fuer-GetComma/
 
@@ -143,8 +128,6 @@ Private Type PROCESSENTRY32
     dwFlags As Long
     szexeFile As String * MAX_PATH
 End Type
-
-
 
 '''''''''''''''''''''''''''''''''''''''''''''''''''''
 ''''''''''''' kernel32 & ntdll bindings '''''''''''''
@@ -163,23 +146,19 @@ Private Declare PtrSafe Function CreateProcess Lib "kernel32.dll" Alias "CreateP
     lpProcessInformation As PROCESS_INFORMATION _
 ) As Long
 
-
 Private Declare PtrSafe Function OpenProcess Lib "kernel32.dll" ( _
     ByVal dwAccess As Long, _
     ByVal fInherit As Long, _
     ByVal hObject As Long _
 ) As LongPtr
  
-
 Private Declare PtrSafe Function HeapAlloc Lib "kernel32.dll" ( _
     ByVal hHeap As LongPtr, _
     ByVal dwFlags As Long, _
     ByVal dwBytes As LongPtr _
 ) As LongPtr
 
-
 Private Declare PtrSafe Function GetProcessHeap Lib "kernel32.dll" () As LongPtr
-
 
 Private Declare PtrSafe Function InitializeProcThreadAttributeList Lib "kernel32.dll" ( _
     ByVal lpAttributelist As LongPtr, _
@@ -187,7 +166,6 @@ Private Declare PtrSafe Function InitializeProcThreadAttributeList Lib "kernel32
     ByVal dwFlags As Integer, _
     ByRef lpSize As Long _
 ) As Boolean
-
 
 Private Declare PtrSafe Function UpdateProcThreadAttribute Lib "kernel32.dll" ( _
     ByVal lpAttributelist As LongPtr, _
@@ -213,9 +191,6 @@ Private Declare PtrSafe Function Process32Next Lib "kernel32.dll" ( _
     ByVal hSnapshot As LongPtr, _
     ByRef lppe As PROCESSENTRY32 _
 ) As Boolean
-
-
-
 
 
 Private Declare PtrSafe Function ResumeThread Lib "kernel32.dll" (ByVal hThread As LongPtr) As Long
@@ -326,7 +301,6 @@ Sub AutoOpen()
 
     result = NtQueryInformationProcess(newProcessHandle, 0, pbi, Len(pbi), size)
  
-    'success = ReadProcessMemory(newProcessHandle, pbi.PebBaseAddress, PEB, Len(PEB), size)
     success = NtReadVirtualMemory(newProcessHandle, pbi.PebBaseAddress, PEB, Len(PEB), liRet)
 
     ' peb.ProcessParameters now contains the address to the parameters - read them
